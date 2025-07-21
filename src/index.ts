@@ -1,17 +1,17 @@
-import { Context, Schema, Service } from 'koishi';
-import { applyModel } from './model';
+import { Context, Schema, Service } from "koishi";
+import { applyModel } from "./model";
 
-export const name = 'coin';
+export const name = "coin";
 
 export interface Config {}
 
 export const Config: Schema<Config> = Schema.object({});
 
 export async function apply(ctx: Context) {
-    ctx.command('次元币', '查看你的次元币余额').action(async ({ session }) => {
+    ctx.command("次元币", "查看你的次元币余额").action(async ({ session }) => {
         if (!session || !session.userId) {
-            console.warn('次元币命令需要用户上下文，无法获取用户 ID。');
-            return '出现一点错误，请稍后再试';
+            console.warn("次元币命令需要用户上下文，无法获取用户 ID。");
+            return "出现一点错误，请稍后再试";
         }
         const coinnum = await ctx.coin.getCoin(session.userId);
         return `你当前的次元币余额为：${coinnum}`;
@@ -19,11 +19,11 @@ export async function apply(ctx: Context) {
 }
 
 export default class Coin extends Service {
-    static inject = ['database'];
+    static inject = ["database"];
 
     constructor(ctx: Context) {
         applyModel(ctx);
-        super(ctx, 'coin');
+        super(ctx, "coin");
     }
 
     /**
@@ -33,9 +33,9 @@ export default class Coin extends Service {
      * @returns 用户的金币数量
      */
     async getCoin(user: string): Promise<number> {
-        let result = await this.ctx.database.get('coin', user);
+        let result = await this.ctx.database.get("coin", user);
         if (result.length === 0) {
-            await this.ctx.database.set('coin', user, { coin: 0 });
+            await this.ctx.database.set("coin", user, { coin: 0 });
             return 0;
         }
         return result[0].coin || 0;
@@ -48,8 +48,8 @@ export default class Coin extends Service {
      * @param coin 金币数量
      */
     async setCoin(user: string, coin: number, source: string): Promise<void> {
-        await this.ctx.database.set('coin', user, { coin });
-        await this.ctx.database.create('coin_source_record', {
+        await this.ctx.database.set("coin", user, { coin });
+        await this.ctx.database.create("coin_source_record", {
             user,
             coin,
             date: new Date(),
@@ -65,13 +65,13 @@ export default class Coin extends Service {
      * @returns 是否成功调整金币数量
      */
     async adjustCoin(user: string, coin: number, source: string): Promise<boolean> {
-        const data = await this.ctx.database.get('coin', user);
+        const data = await this.ctx.database.get("coin", user);
         const currentCoin = data[0]?.coin || 0;
         if (!this.hasEnoughCoin(user, coin)) {
             return false;
         }
-        await this.ctx.database.upsert('coin', (row) => [{ user: user, coin: currentCoin + coin }]);
-        await this.ctx.database.create('coin_source_record', {
+        await this.ctx.database.upsert("coin", (row) => [{ user: user, coin: currentCoin + coin }]);
+        await this.ctx.database.create("coin_source_record", {
             user,
             coin,
             source,
@@ -88,13 +88,13 @@ export default class Coin extends Service {
      * @returns 是否有足够的金币
      */
     async hasEnoughCoin(user: string, coin: number): Promise<boolean> {
-        const data = await this.ctx.database.get('coin', user);
+        const data = await this.ctx.database.get("coin", user);
         const currentCoin = data[0]?.coin || 0;
         return currentCoin >= coin;
     }
 }
 
-declare module 'koishi' {
+declare module "koishi" {
     interface Context {
         coin: Coin;
     }

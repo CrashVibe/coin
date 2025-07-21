@@ -1,7 +1,7 @@
-import { Context } from 'koishi';
-import Coin from '.';
+import { Context } from "koishi";
+import Coin from ".";
 
-declare module 'koishi' {
+declare module "koishi" {
     interface Tables {
         coin: CoinModel;
         coin_source_record: CoinSourceRecord;
@@ -15,7 +15,7 @@ export interface CoinModel {
 
 export interface CoinSourceRecord {
     id: number;
-    user: CoinModel['user'];
+    user: CoinModel["user"];
     coin: number;
     source: string;
     date: Date;
@@ -23,27 +23,27 @@ export interface CoinSourceRecord {
 
 export function applyModel(ctx: Context) {
     ctx.model.extend(
-        'coin_source_record',
+        "coin_source_record",
         {
-            id: { type: 'unsigned' },
-            user: { type: 'string' },
-            coin: { type: 'integer' },
-            source: { type: 'string' },
-            date: { type: 'date' }
+            id: { type: "unsigned" },
+            user: { type: "string" },
+            coin: { type: "integer" },
+            source: { type: "string" },
+            date: { type: "date" }
         },
         {
-            primary: 'id',
+            primary: "id",
             autoInc: true
         }
     );
     ctx.model.extend(
-        'coin',
+        "coin",
         {
-            user: { type: 'string' },
-            coin: { type: 'integer', initial: 0 }
+            user: { type: "string" },
+            coin: { type: "integer", initial: 0 }
         },
         {
-            primary: 'user'
+            primary: "user"
         }
     );
 }
