@@ -1,38 +1,67 @@
 import { Context, Schema, Service } from "koishi";
-import { applyModel } from "./model";
-
 export const name = "coin";
-
 export interface Config {}
-
 export const Config: Schema<Config> = Schema.object({});
 
-export async function apply(ctx: Context) {
-    ctx.command("次元币", "查看你的次元币余额").action(async ({ session }) => {
-        if (!session || !session.userId) {
-            console.warn("次元币命令需要用户上下文，无法获取用户 ID。");
-            return "出现一点错误，请稍后再试";
-        }
-        const coinnum = await ctx.coin.getCoin(session.userId);
-        return `你当前的次元币余额为：${coinnum}`;
-    });
+declare module "koishi" {
+    interface Context {
+        coin: Coin;
+    }
 }
 
 export default class Coin extends Service {
     static inject = ["database"];
-
+    ctx: Context;
     constructor(ctx: Context) {
-        applyModel(ctx);
-        super(ctx, "coin");
+        super(ctx, "coin", true);
+        this.ctx = ctx;
+        this.apply();
     }
 
+    start() {
+        this.ctx.command("次元币", "查看你的次元币余额").action(async ({ session }) => {
+            if (!session || !session.userId) {
+                this.ctx.logger.warn("次元币命令需要用户上下文，无法获取用户 ID。");
+                return "出现一点错误，请稍后再试";
+            }
+            const coinnum = await this.getCoin(session.userId);
+            return `你当前的次元币余额为：${coinnum}`;
+        });
+    }
+
+    apply() {
+        this.ctx.model.extend(
+            "coin_source_record",
+            {
+                id: { type: "unsigned" },
+                user: { type: "string" },
+                coin: { type: "integer" },
+                source: { type: "string" },
+                date: { type: "date" }
+            },
+            {
+                primary: "id",
+                autoInc: true
+            }
+        );
+        this.ctx.model.extend(
+            "coin",
+            {
+                user: { type: "string" },
+                coin: { type: "integer", initial: 0 }
+            },
+            {
+                primary: "user"
+            }
+        );
+    }
     /**
      * 获取用户的金币数量
      *
      * @param user 用户 ID
      * @returns 用户的金币数量
      */
-    async getCoin(user: string): Promise<number> {
+    public async getCoin(user: string): Promise<number> {
         let result = await this.ctx.database.get("coin", user);
         if (result.length === 0) {
             await this.ctx.database.set("coin", user, { coin: 0 });
@@ -91,11 +120,5 @@ export default class Coin extends Service {
         const data = await this.ctx.database.get("coin", user);
         const currentCoin = data[0]?.coin || 0;
         return currentCoin >= coin;
-    }
-}
-
-declare module "koishi" {
-    interface Context {
-        coin: Coin;
     }
 }
