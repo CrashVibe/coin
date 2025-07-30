@@ -1,4 +1,5 @@
 import { Context, Schema, Service } from "koishi";
+import { applyModel } from "./interface";
 export const name = "coin";
 export interface Config {}
 export const Config: Schema<Config> = Schema.object({});
@@ -15,7 +16,7 @@ export default class Coin extends Service {
     constructor(ctx: Context) {
         super(ctx, "coin", true);
         this.ctx = ctx;
-        this.apply();
+        applyModel(ctx);
     }
 
     start() {
@@ -29,32 +30,6 @@ export default class Coin extends Service {
         });
     }
 
-    apply() {
-        this.ctx.model.extend(
-            "coin_source_record",
-            {
-                id: { type: "unsigned" },
-                user: { type: "string" },
-                coin: { type: "integer" },
-                source: { type: "string" },
-                date: { type: "date" }
-            },
-            {
-                primary: "id",
-                autoInc: true
-            }
-        );
-        this.ctx.model.extend(
-            "coin",
-            {
-                user: { type: "string" },
-                coin: { type: "integer", initial: 0 }
-            },
-            {
-                primary: "user"
-            }
-        );
-    }
     /**
      * 获取用户的金币数量
      *

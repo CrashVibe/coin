@@ -19,3 +19,30 @@ export interface CoinSourceRecord {
     source: string;
     date: Date;
 }
+
+export async function applyModel(ctx: Context) {
+    ctx.model.extend(
+        "coin_source_record",
+        {
+            id: { type: "unsigned" },
+            user: { type: "string" },
+            coin: { type: "integer" },
+            source: { type: "string" },
+            date: { type: "date" }
+        },
+        {
+            primary: "id",
+            autoInc: true
+        }
+    );
+    ctx.model.extend(
+        "coin",
+        {
+            user: { type: "string" },
+            coin: { type: "integer", initial: 0 }
+        },
+        {
+            primary: "user"
+        }
+    );
+}
