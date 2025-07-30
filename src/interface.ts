@@ -20,7 +20,7 @@ export interface CoinSourceRecord {
     date: Date;
 }
 
-export async function applyModel(ctx: Context) {
+export function applyModel(ctx: Context) {
     ctx.model.extend(
         "coin_source_record",
         {
