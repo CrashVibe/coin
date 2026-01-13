@@ -1,4 +1,4 @@
-import { Context, Schema, Service } from "koishi";
+import { Context, h, Schema, Service } from "koishi";
 import { applyModel } from "./interface";
 export const name = "coin";
 export interface Config {}
@@ -22,11 +22,10 @@ export default class Coin extends Service {
     start() {
         this.ctx.command("次元币", "查看你的次元币余额").action(async ({ session }) => {
             if (!session || !session.userId) {
-                this.ctx.logger.warn("次元币命令需要用户上下文，无法获取用户 ID。");
-                return "出现一点错误，请稍后再试";
+                throw new Error("会话对象不存在");
             }
             const coinnum = await this.getCoin(session.userId);
-            return `你当前的次元币余额为：${coinnum}`;
+            return h.quote(session.messageId) + `你当前的次元币余额为：${coinnum}`;
         });
     }
 
