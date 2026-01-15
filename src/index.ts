@@ -1,5 +1,5 @@
 import { Context, h, Schema, Service } from "koishi";
-import { applyModel } from "./interface";
+import { applyModel } from "./models";
 export const name = "coin";
 export interface Config {}
 export const Config: Schema<Config> = Schema.object({});

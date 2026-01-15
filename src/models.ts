@@ -32,7 +32,10 @@ export function applyModel(ctx: Context) {
         },
         {
             primary: "id",
-            autoInc: true
+            autoInc: true,
+            foreign: {
+                user: ["coin", "user"]
+            }
         }
     );
     ctx.model.extend(
