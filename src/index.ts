@@ -65,6 +65,7 @@ export default class Coin extends Service {
      *
      * @param user 用户 ID
      * @param coin 金币数量，可以为正数或负数
+     * @param source 来源
      * @returns 是否成功调整金币数量
      */
     async adjustCoin(user: string, coin: number, source: string): Promise<boolean> {
